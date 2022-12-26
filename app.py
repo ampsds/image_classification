@@ -48,9 +48,9 @@ def render_prediction(prediction_idx):
             class_name = img_class_map[stridx][1]
     return prediction_idx, class_name
 
-@app.route('/', methods=['GET'])
-def root():
-    return jsonify({'msg' : 'Try POSTing to the /predict endpoint with an RGB image attachment'})
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.after_request
 def after_request(response):
