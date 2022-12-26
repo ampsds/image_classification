@@ -69,6 +69,3 @@ def predict():
             prediction_idx = get_prediction(input_tensor)
             class_id, class_name = render_prediction(prediction_idx)
             return jsonify({'class_id': class_id, 'class_name': class_name})
-
-if __name__ == '__main__':
-    app.run()
