@@ -10,8 +10,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
-#model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+#model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
+model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 model.eval()                                              # Turns off autograd and
 
 img_class_map = None
