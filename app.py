@@ -33,39 +33,8 @@ def transform_image(infile):
     timg.unsqueeze_(0)                                    # PyTorch models expect batched input; create a batch of 1
     return timg
 
-# Get a prediction
-def get_prediction(input_tensor):
-    outputs = model.forward(input_tensor)                 # Get likelihoods for all ImageNet classes
-    _, y_hat = outputs.max(1)                             # Extract the most likely class
-    prediction = y_hat.item()                             # Extract the int value from the PyTorch tensor
-    return prediction
-
-# Make the prediction human-readable
-def render_prediction(prediction_idx):
-    stridx = str(prediction_idx)
-    class_name = 'Unknown'
-    if img_class_map is not None:
-        if stridx in img_class_map is not None:
-            class_name = img_class_map[stridx][1]
-    return prediction_idx, class_name
-
 @app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
-@app.after_request
-def after_request(response):
-  # response.headers.add('Access-Control-Allow-Origin', '*')
-  response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-  return response
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if request.method == 'POST':
-        file = request.files['file']
-        if file is not None:
-            input_tensor = transform_image(file)
-            prediction_idx = get_prediction(input_tensor)
-            class_id, class_name = render_prediction(prediction_idx)
-            return jsonify({'class_id': class_id, 'class_name': class_name})
