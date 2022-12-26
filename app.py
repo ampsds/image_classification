@@ -49,7 +49,7 @@ def render_prediction(prediction_idx):
             class_name = img_class_map[stridx][1]
     return prediction_idx, class_name
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return render_template('index.html')
 
