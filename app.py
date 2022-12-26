@@ -4,6 +4,8 @@ import os
 
 import torchvision.models as models
 import torchvision.transforms as transforms
+from torchvision.models import resnet50, ResNet50_Weights
+
 from PIL import Image
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
@@ -11,7 +13,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 #model = models.densenet121(pretrained=True)               # Trained on 1000 classes from ImageNet
-model = models.resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 model.eval()                                              # Turns off autograd and
 
 img_class_map = None
