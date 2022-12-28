@@ -6,6 +6,10 @@ import torchvision.models as models
 import torchvision.transforms as transforms
 from torchvision.models import resnet50, ResNet50_Weights
 
+from linebot import LineBotApi, WebhookHandler
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageMessage
+
 from PIL import Image
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
@@ -16,6 +20,14 @@ CORS(app)
 model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 model.eval()                                              # Turns off autograd and
 
+##ラインボット
+CHANNEL_ACCESS_TOKEN = os.getenv('CHANNEL_ACCESS_TOKEN')
+CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
+
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(CHANNEL_SECRET)
+
+##推論
 img_class_map = None
 mapping_file_path = 'index_to_name.json'                  # Human-readable names for Imagenet classes
 if os.path.isfile(mapping_file_path):
@@ -71,3 +83,38 @@ def predict():
             prediction_idx = get_prediction(input_tensor)
             class_id, class_name = render_prediction(prediction_idx)
             return jsonify({'class_id': class_id, 'class_name': class_name})
+
+#LINE BOTウェブフック
+@app.route("/callback", methods=['POST'])
+def callback():
+  signature = request.headers['X-Line-Signature']
+  body = request.get_data(as_text=True)
+  app.logger.info("Request body: " + body)
+
+  try:
+    handler.handle(body, signature)
+  except InvalidSignatureError:
+    abort(400)
+
+  return 'OK'
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+  line_bot_api.reply_message(
+    event.reply_token,
+    TextSendMessage(text=event.message.text))
+
+@handler.add(MessageEvent, message=ImageMessage)
+def handle_image(event):
+    content = line_bot_api.get_message_content(event.message.id)
+    img = b""
+    for chunk in content.iter_content():
+        img += chunk
+        
+    input_tensor = transform_image(img)
+    prediction_idx = get_prediction(input_tensor)
+    class_id, class_name = render_prediction(prediction_idx) 
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=class_name))
