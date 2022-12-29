@@ -18,8 +18,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-model = models.resnet18(pretrained=True)              # Trained on 1000 classes from ImageNet
-#model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+#model = models.resnet18(pretrained=True)              # Trained on 1000 classes from ImageNet
+model = resnet18(weights=ResNet18_Weights.DEFAULT)
 model.eval()                                              # Turns off autograd and
 
 ##ラインボット
