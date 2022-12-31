@@ -98,7 +98,7 @@ def handle_image(event):
     for chunk in content.iter_content():
         img += chunk
  
-    class_name = get_prediction(image_bytes=img)
+    class_name[1] = get_prediction(image_bytes=img)
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=class_name))
